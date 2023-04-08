@@ -28,7 +28,7 @@ COPY --from=builder /cartservice .
 EXPOSE 7070
 ENV DOTNET_EnableDiagnostics=0 \
     ASPNETCORE_URLS=http://*:7070
-USER 1000
+USER 10002
 ENTRYPOINT ["/app/cartservice"]
 
 FROM without-grpc-health-probe-bin
@@ -37,4 +37,4 @@ USER root
 ENV GRPC_HEALTH_PROBE_VERSION=v0.4.17
 RUN wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
     chmod +x /bin/grpc_health_probe
-USER 1000
+USER 10002

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:3.10.8-slim@sha256:49749648f4426b31b20fca55ad854caa55ff59dc604f2f76b57d814e0a47c181 as base
+FROM python:3.10.11-slim@sha256:89648909125f37eeff6dee35491e6295c77b76c42aa1aff2523478990e73d3fe as base
 
 FROM base as builder
 
@@ -53,3 +53,4 @@ ENTRYPOINT ["python", "recommendation_server.py"]
 FROM without-grpc-health-probe-bin
 COPY --from=builder /bin/grpc_health_probe /bin/grpc_health_probe
 USER 10002
+ENV DISABLE_PROFILER 1

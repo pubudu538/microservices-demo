@@ -2,206 +2,151 @@
 <img src="src/frontend/static/icons/Hipster_HeroLogoMaroon.svg" width="300" alt="Online Boutique" />
 </p>
 
+# Setting up Online Boutique with Choreo 
 
-![Continuous Integration](https://github.com/GoogleCloudPlatform/microservices-demo/workflows/Continuous%20Integration%20-%20Main/Release/badge.svg)
+> **Note:**
+    This is fork from the [GoogleCloudPlatform/microservices-demo](https://github.com/GoogleCloudPlatform/microservices-demo) repository and additional changes are included in order to deploy the application on [Choreo](https://wso2.com/choreo/).
 
-**Online Boutique** is a cloud-first microservices demo application.
-Online Boutique consists of an 11-tier microservices application. The application is a
-web-based e-commerce app where users can browse items,
-add them to the cart, and purchase them.
+# Step 1: Create and Deploy Services
 
-**Google uses this application to demonstrate use of technologies like
-Kubernetes/GKE, Istio, Stackdriver, and gRPC**. This application
-works on any Kubernetes cluster, as well as Google
-Kubernetes Engine. It’s **easy to deploy with little to no configuration**.
+You will create the services that the web application needs to consume. Before you proceed, sign into [**Choreo Console**](https://console.choreo.dev/).
 
-If you’re using this demo, please **★Star** this repository to show your interest!
+## Step 1.1: Create and Deploy the Email Service
 
-> 👓**Note to Googlers (Google employees):** Please fill out the form at
-> [go/microservices-demo](http://go/microservices-demo) if you are using this
-> application.
+Let's create your first Service.
+1. On the **Home** page, click on the project you created.
+2. Click **Create** in the Service card.
+3. Enter a unique name and a description for the Service. For example, you can enter the name and the description given below:
 
-## Screenshots
+    | Field | Value |
+    | -------- | -------- |
+    | Name | Email Service |
+    | Description | Send Emails. |
+
+4. Click **Next**.
+5. To allow Choreo to connect to your GitHub account, click **Authorize with GitHub**.
+6. If you have not already connected your GitHub repository to Choreo, enter your GitHub credentials, and select the repository you created by forking https://github.com/wso2/microservices-demo to install the Choreo GitHub App.
+7. In the Connect Repository dialog box, enter the following information:
+
+    | Field | Value |
+    | -------- | -------- |
+    | GitHub Account | Your account |
+    | GitHub Repository | microservices-demo |
+    | Branch | main |
+    | Build Preset | Click **Dockerfile**  |
+    | Dockerfile Path | /src/emailservice/Dockerfile |
+    | Docker Context Path | /src/emailservice|
+
+8. Click **Create** to initialize a Service with the implementation from your GitHub repository.
+9. The Service opens on a separate page where you can see deploy details.
+10. Click **Deploy Manually** on the **Build Area** to deploy the service.
+11. Navigate to the **Overview** area after the service has been successfully deployed. The internal **endpoint** of the service is something like http://email-service-3192360657:8080/. Make a note of the endpoint value for future reference.
+
+
+## Step 1.2: Create and Deploy other Services
+
+1. Follow the steps in **step 1.1** and create the services with the following information. 
+
+    | Service Name     | Dockerfile Path |  Docker Context Path |
+    | ---------------- | --------------- |  ------------------- |
+    | Currency Service | /src/currencyservice/Dockerfile | /src/currencyservice |
+    | Product Catalog Service | /src/productcatalogservice/Dockerfile | /src/productcatalogservice |
+    | Shipping Service | /src/shippingservice/Dockerfile | /src/shippingservice |
+    | Ad Service | /src/adservice/Dockerfile | /src/adservice |
+    | Payment Service | /src/paymentservice/Dockerfile | /src/paymentservice |
+    | Cart Service | /src/cartservice/src/Dockerfile | /src/cartservice/src |
+    | Recommendation Service | /src/recommendationservice/Dockerfile | /src/recommendationservice |
+    | Checkout Service | /src/checkoutservice/Dockerfile | /src/checkoutservice | 
+
+2. The below services are having environment variables. Follow the below steps to add environment variables.
+
+- Navigate to **Configs & Secrets** section on the left navigation menu in the **Deploy** section.
+- Click **Create**.
+- Select config type as **ConfigMap** and mount type as **Environment Variables**. Then click **Next**.
+- Provide the following information and click **Create**. Use the **host** and **port** of the internal **endpoints** of the services as environment variables. eg: If the internal endpoint is http://email-service-3192360657:8080/, then environment variable value should be **email-service-3192360657:8080**.
+
+   - Recommendation Service 
+
+      | Environment Variable Name     | Environment Variable Value |
+      | ---------------- | --------------- | 
+      | PRODUCT_CATALOG_SERVICE_ADDR | Product catalog service endpoint. eg: product-catalog-service-3192360657:3550 |
+
+   - Checkout Service 
+
+      | Environment Variable Name     | Environment Variable Value |
+      | ---------------- | --------------- | 
+      | PRODUCT_CATALOG_SERVICE_ADDR | Product catalog service endpoint. eg: product-catalog-service-3192360657:3550 |
+      | SHIPPING_SERVICE_ADDR | Shipping service endpoint. eg: shipping-service-3192360657:3550 |
+      | PAYMENT_SERVICE_ADDR | Payment service endpoint. eg: payment-service-3192360657:50051 |
+      | EMAIL_SERVICE_ADDR | Email service endpoint. eg: email-service-3192360657:8080 |
+      | CURRENCY_SERVICE_ADDR | Currency service endpoint. eg: currency-service-3192360657:7000 |
+      | CART_SERVICE_ADDR | Cart service endpoint. eg: cart-service-3192360657:7070 |
+
+3. After adding environment variables, you can click **Deploy Manually** on the **Build Area** to deploy the services.
+
+&nbsp;<br>
+# Step 2: Create and Deploy the front-end application
+
+## Step 2.1: Configure the front-end application
+
+1. Navigate to **Choreo Console**.
+2. Navigate to the **Components** section from the left navigation menu.
+3. Click on the **Create** button.
+4. Click on the **Create** button in the **Web Application** Card.
+5. Enter a unique name and a description for the Web Application. For example you can provide the following sample values.
+
+    | Field | Value |
+    | -------- | -------- |
+    | Name | Front-end Web App |
+    | Description | Front-end application |
+
+6. Click on the **Next** button.
+7. To allow Choreo to connect to your **GitHub** account, click **Authorize with GitHub**.
+8. In the Connect Repository dialog box, enter the following information:
+
+    | Field | Value |
+    | -------- | -------- |
+    | GitHub Account | Your account |
+    | GitHub Repository | microservices-demo |
+    | Branch | main |
+    | Dockerfile Path | /src/frontend/Dockerfile |
+    | Docker Context Path | /src/frontend|
+    | Port |8080|
+
+9. Click on the **Create** button.
+10. The Web Application opens on a separate page where you can see its overview.
+
+## Step 2.2: Add environment variables for the front-end application
+
+1. Navigate to **Configs & Secrets** section on the left navigation menu in the **Deploy** section.
+2. Click **Create**.
+3. Select config type as **ConfigMap** and mount type as **Environment Variables**. Then click **Next**.
+4. Provide the following information and click **Create**.
+
+      | Environment Variable Name     | Environment Variable Value |
+      | ---------------- | --------------- | 
+      | PRODUCT_CATALOG_SERVICE_ADDR | Product catalog service endpoint. eg: product-catalog-service-3192360657:3550 |
+      | SHIPPING_SERVICE_ADDR | Shipping service endpoint. eg: shipping-service-3192360657:3550 |
+      | CURRENCY_SERVICE_ADDR | Currency service endpoint. eg: currency-service-3192360657:7000 |
+      | CART_SERVICE_ADDR | Cart service endpoint. eg: cart-service-3192360657:7070 |
+      | RECOMMENDATION_SERVICE_ADDR | Recommendation service endpoint. eg: recommendationservice-3192360657:8080 |
+      | CHECKOUT_SERVICE_ADDR | Checkout service endpoint. eg: checkoutservice-3192360657:5050 |
+      | AD_SERVICE_ADDR | Ad service endpoint. eg: adservice-3192360657:9555 |
+
+## Step 2.3: Deploy the front-end application
+
+1. Navigate to **Build and Deploy** section on the left navigation menu.
+2. Click **Deploy Manually** on the **Build Area**.
+3. When the application is deployed successfully you will get an url in the section **Web App URL**.
+
+&nbsp;<br>
+# Step 3: Consume the Application
+
+You can use the **Web App URL** to access the **Online Boutique** application.
+
 
 | Home Page                                                                                                         | Checkout Screen                                                                                                    |
 | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | [![Screenshot of store homepage](./docs/img/online-boutique-frontend-1.png)](./docs/img/online-boutique-frontend-1.png) | [![Screenshot of checkout screen](./docs/img/online-boutique-frontend-2.png)](./docs/img/online-boutique-frontend-2.png) |
 
-## Quickstart (GKE)
-
-[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://ssh.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2FGoogleCloudPlatform%2Fmicroservices-demo&shellonly=true&cloudshell_image=gcr.io/ds-artifacts-cloudshell/deploystack_custom_image)
-
-1. **[Create a Google Cloud Platform project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project)** or use an existing project. Set the `PROJECT_ID` environment variable and ensure the Google Kubernetes Engine and Cloud Operations APIs are enabled.
-
-```
-PROJECT_ID="<your-project-id>"
-gcloud services enable container.googleapis.com --project ${PROJECT_ID}
-```
-
-2. **Clone this repository.**
-
-```
-git clone https://github.com/GoogleCloudPlatform/microservices-demo.git
-cd microservices-demo
-```
-
-3. **Create a GKE cluster.**
-
-- GKE autopilot mode (see [Autopilot
-overview](https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview)
-to learn more):
-
-```
-REGION=us-central1
-gcloud container clusters create-auto onlineboutique \
-    --project=${PROJECT_ID} --region=${REGION}
-```
-
-- GKE Standard mode:
-
-```
-ZONE=us-central1-b
-gcloud container clusters create onlineboutique \
-    --project=${PROJECT_ID} --zone=${ZONE} \
-    --machine-type=e2-standard-2 --num-nodes=4
-```
-
-4. **Deploy the sample app to the cluster.**
-
-```
-kubectl apply -f ./release/kubernetes-manifests.yaml
-```
-
-5. **Wait for the Pods to be ready.**
-
-```
-kubectl get pods
-```
-
-After a few minutes, you should see:
-
-```
-NAME                                     READY   STATUS    RESTARTS   AGE
-adservice-76bdd69666-ckc5j               1/1     Running   0          2m58s
-cartservice-66d497c6b7-dp5jr             1/1     Running   0          2m59s
-checkoutservice-666c784bd6-4jd22         1/1     Running   0          3m1s
-currencyservice-5d5d496984-4jmd7         1/1     Running   0          2m59s
-emailservice-667457d9d6-75jcq            1/1     Running   0          3m2s
-frontend-6b8d69b9fb-wjqdg                1/1     Running   0          3m1s
-loadgenerator-665b5cd444-gwqdq           1/1     Running   0          3m
-paymentservice-68596d6dd6-bf6bv          1/1     Running   0          3m
-productcatalogservice-557d474574-888kr   1/1     Running   0          3m
-recommendationservice-69c56b74d4-7z8r5   1/1     Running   0          3m1s
-redis-cart-5f59546cdd-5jnqf              1/1     Running   0          2m58s
-shippingservice-6ccc89f8fd-v686r         1/1     Running   0          2m58s
-```
-
-7. **Access the web frontend in a browser** using the frontend's `EXTERNAL_IP`.
-
-```
-kubectl get service frontend-external | awk '{print $4}'
-```
-
-*Example output - do not copy*
-
-```
-EXTERNAL-IP
-<your-ip>
-```
-
-**Note**- you may see `<pending>` while GCP provisions the load balancer. If this happens, wait a few minutes and re-run the command.
-
-8. [Optional] **Clean up**:
-
-```
-gcloud container clusters delete onlineboutique \
-    --project=${PROJECT_ID} --zone=${ZONE}
-```
-
-## Use Terraform to provision a GKE cluster and deploy Online Boutique
-
-The [`/terraform` folder](terraform) contains instructions for using [Terraform](https://www.terraform.io/intro) to replicate the steps from [**Quickstart (GKE)**](#quickstart-gke) above.
-
-## Other deployment variations
-
-- **Istio/Anthos Service Mesh**: [See these instructions.](/kustomize/components/service-mesh-istio/README.md)
-- **non-GKE clusters (Minikube, Kind)**: see the [Development Guide](/docs/development-guide.md)
-
-## Deploy Online Boutique variations with Kustomize
-
-The [`/kustomize` folder](kustomize) contains instructions for customizing the deployment of Online Boutique with different variations such as:
-* integrating with [Google Cloud Operations](kustomize/components/google-cloud-operations/)
-* replacing the in-cluster Redis cache with [Google Cloud Memorystore (Redis)](kustomize/components/memorystore), [AlloyDB](kustomize/components/alloydb) or [Google Cloud Spanner](kustomize/components/spanner)
-* etc.
-
-## Architecture
-
-**Online Boutique** is composed of 11 microservices written in different
-languages that talk to each other over gRPC.
-
-[![Architecture of
-microservices](./docs/img/architecture-diagram.png)](./docs/img/architecture-diagram.png)
-
-Find **Protocol Buffers Descriptions** at the [`./pb` directory](./pb).
-
-| Service                                              | Language      | Description                                                                                                                       |
-| ---------------------------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| [frontend](./src/frontend)                           | Go            | Exposes an HTTP server to serve the website. Does not require signup/login and generates session IDs for all users automatically. |
-| [cartservice](./src/cartservice)                     | C#            | Stores the items in the user's shopping cart in Redis and retrieves it.                                                           |
-| [productcatalogservice](./src/productcatalogservice) | Go            | Provides the list of products from a JSON file and ability to search products and get individual products.                        |
-| [currencyservice](./src/currencyservice)             | Node.js       | Converts one money amount to another currency. Uses real values fetched from European Central Bank. It's the highest QPS service. |
-| [paymentservice](./src/paymentservice)               | Node.js       | Charges the given credit card info (mock) with the given amount and returns a transaction ID.                                     |
-| [shippingservice](./src/shippingservice)             | Go            | Gives shipping cost estimates based on the shopping cart. Ships items to the given address (mock)                                 |
-| [emailservice](./src/emailservice)                   | Python        | Sends users an order confirmation email (mock).                                                                                   |
-| [checkoutservice](./src/checkoutservice)             | Go            | Retrieves user cart, prepares order and orchestrates the payment, shipping and the email notification.                            |
-| [recommendationservice](./src/recommendationservice) | Python        | Recommends other products based on what's given in the cart.                                                                      |
-| [adservice](./src/adservice)                         | Java          | Provides text ads based on given context words.                                                                                   |
-| [loadgenerator](./src/loadgenerator)                 | Python/Locust | Continuously sends requests imitating realistic user shopping flows to the frontend.                                              |
-
-## Features
-
-- **[Kubernetes](https://kubernetes.io)/[GKE](https://cloud.google.com/kubernetes-engine/):**
-  The app is designed to run on Kubernetes (both locally on "Docker for
-  Desktop", as well as on the cloud with GKE).
-- **[gRPC](https://grpc.io):** Microservices use a high volume of gRPC calls to
-  communicate to each other.
-- **[Istio](https://istio.io):** Application works on Istio service mesh.
-- **[Cloud Operations (Stackdriver)](https://cloud.google.com/products/operations):** Many services
-  are instrumented with **Profiling** and **Tracing**. In
-  addition to these, using Istio enables features like Request/Response
-  **Metrics** and **Context Graph** out of the box. When it is running out of
-  Google Cloud, this code path remains inactive.
-- **[Skaffold](https://skaffold.dev):** Application
-  is deployed to Kubernetes with a single command using Skaffold.
-- **Synthetic Load Generation:** The application demo comes with a background
-  job that creates realistic usage patterns on the website using
-  [Locust](https://locust.io/) load generator.
-
-## Local Development
-
-If you would like to contribute features or fixes to this app, see the [Development Guide](/docs/development-guide.md) on how to build this demo locally.
-
-## Demos featuring Online Boutique
-
-- [Use Helm to simplify the deployment of Online Boutique, with a Service Mesh, GitOps, and more!](https://medium.com/p/246119e46d53)
-- [How to reduce microservices complexity with Apigee and Anthos Service Mesh](https://cloud.google.com/blog/products/application-modernization/api-management-and-service-mesh-go-together)
-- [gRPC health probes with Kubernetes 1.24+](https://medium.com/p/b5bd26253a4c)
-- [Use Google Cloud Spanner with the Online Boutique sample](https://medium.com/p/f7248e077339)
-- [Seamlessly encrypt traffic from any apps in your Mesh to Memorystore (redis)](https://medium.com/google-cloud/64b71969318d)
-- [Strengthen your app's security with Anthos Service Mesh and Anthos Config Management](https://cloud.google.com/service-mesh/docs/strengthen-app-security)
-- [From edge to mesh: Exposing service mesh applications through GKE Ingress](https://cloud.google.com/architecture/exposing-service-mesh-apps-through-gke-ingress)
-- [Take the first step toward SRE with Cloud Operations Sandbox](https://cloud.google.com/blog/products/operations/on-the-road-to-sre-with-cloud-operations-sandbox)
-- [Deploying the Online Boutique sample application on Anthos Service Mesh](https://cloud.google.com/service-mesh/docs/onlineboutique-install-kpt)
-- [Anthos Service Mesh Workshop: Lab Guide](https://codelabs.developers.google.com/codelabs/anthos-service-mesh-workshop)
-- [KubeCon EU 2019 - Reinventing Networking: A Deep Dive into Istio's Multicluster Gateways - Steve Dake, Independent](https://youtu.be/-t2BfT59zJA?t=982)
-- Google Cloud Next'18 SF
-  - [Day 1 Keynote](https://youtu.be/vJ9OaAqfxo4?t=2416) showing GKE On-Prem
-  - [Day 3 Keynote](https://youtu.be/JQPOPV_VH5w?t=815) showing Stackdriver
-    APM (Tracing, Code Search, Profiler, Google Cloud Build)
-  - [Introduction to Service Management with Istio](https://www.youtube.com/watch?v=wCJrdKdD6UM&feature=youtu.be&t=586)
-- [Google Cloud Next'18 London – Keynote](https://youtu.be/nIq2pkNcfEI?t=3071)
-  showing Stackdriver Incident Response Management
-
----
-
-This is not an official Google project.
+--------

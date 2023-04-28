@@ -1,3 +1,6 @@
+> **Note**
+> This repository is a fork of the [GoogleCloudPlatform/microservices-demo](https://github.com/GoogleCloudPlatform/microservices-demo) repository and additional changes are included in order to deploy the application on [Choreo](https://wso2.com/choreo/). You can follow the [user guide](https://github.com/wso2/choreo-examples/tree/main/b2c-apps/gcp-microservices-demo-app#readme) to deploy the application on Choreo.
+
 <p align="center">
 <img src="/src/frontend/static/icons/Hipster_HeroLogoMaroon.svg" width="300" alt="Online Boutique" />
 </p>
